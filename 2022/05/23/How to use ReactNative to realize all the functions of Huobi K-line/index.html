@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hellohublot.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Data transferWe can’t directly pass Dictionary to Native, because yogo will parse these large amounts of data, which will cause performance problems. We’d better serialize them into JSON strings and p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to use ReactNative to realize all the functions of Huobi K-line">
+<meta property="og:url" content="https://hellohublot.github.io/2022/05/23/How%20to%20use%20ReactNative%20to%20realize%20all%20the%20functions%20of%20Huobi%20K-line/index.html">
+<meta property="og:site_name" content="时光荏苒">
+<meta property="og:description" content="Data transferWe can’t directly pass Dictionary to Native, because yogo will parse these large amounts of data, which will cause performance problems. We’d better serialize them into JSON strings and p">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-23T08:50:14.000Z">
+<meta property="article:modified_time" content="2023-02-24T06:59:12.830Z">
+<meta property="article:author" content="hublot@aliyun.com">
+<meta property="article:tag" content="ReactNative">
+<meta property="article:tag" content="Chart">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://hellohublot.github.io/2022/05/23/How%20to%20use%20ReactNative%20to%20realize%20all%20the%20functions%20of%20Huobi%20K-line/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>How to use ReactNative to realize all the functions of Huobi K-line | 时光荏苒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">时光荏苒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hellohublot.github.io/2022/05/23/How%20to%20use%20ReactNative%20to%20realize%20all%20the%20functions%20of%20Huobi%20K-line/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hublot@aliyun.com">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="时光荏苒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          How to use ReactNative to realize all the functions of Huobi K-line
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-05-23 16:50:14" itemprop="dateCreated datePublished" datetime="2022-05-23T16:50:14+08:00">2022-05-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-02-24 14:59:12" itemprop="dateModified" datetime="2023-02-24T14:59:12+08:00">2023-02-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Data-transfer"><a href="#Data-transfer" class="headerlink" title="Data transfer"></a>Data transfer</h2><p>We can’t directly pass Dictionary to Native, because yogo will parse these large amounts of data, which will cause performance problems. We’d better serialize them into JSON strings and pass large amounts of data between JS and Native. We calculate all index values in the background thread and then update the UI on the main thread</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RNKLineView</span></span><br><span class="line"><span class="meta">@objc</span> <span class="function">func <span class="title">reloadOptionList</span><span class="params">(_ reactTag: NSNumber, optionList: String)</span> </span>&#123;</span><br><span class="line">     bridge.uiManager.addUIBlock &#123; (uimanager, viewRegistry) in</span><br><span class="line">         guard let viewRegistry = viewRegistry, let containerView = viewRegistry[reactTag] as? HTKLineContainerView <span class="keyword">else</span> &#123;</span><br><span class="line">             <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         type(of: self). queue. async &#123;</span><br><span class="line">             <span class="keyword">do</span> &#123;</span><br><span class="line">                 guard let optionList = <span class="keyword">try</span> JSONSerialization.jsonObject(with: optionList.data(using: .utf8) ?? Data(), options: .allowFragments) as? [String: Any] <span class="keyword">else</span> &#123;</span><br><span class="line">                     <span class="keyword">return</span></span><br><span class="line">                 &#125;</span><br><span class="line">                 containerView.configManager.reloadOptionList(optionList)</span><br><span class="line">                 DispatchQueue. main. async &#123;</span><br><span class="line">                     containerView. reloadConfigManager(containerView.configManager)</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125; <span class="keyword">catch</span>(_) &#123;</span><br><span class="line"></span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Chart-wrapper"><a href="#Chart-wrapper" class="headerlink" title="Chart wrapper"></a>Chart wrapper</h2><p>There are many kinds of charts and indicators that need to be drawn, so we encapsulate the same parts of them into protocols. Similarly, in swift, we can add default implementations to protocols, or add public methods</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineDrawProtocolx</span></span><br><span class="line">protocol HTKLineDrawProtocol: <span class="class"><span class="keyword">class</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="function">func <span class="title">minMaxRange</span><span class="params">(_ visibleModelArray: [HTKLineModel], _ configManager: HTKLineConfigManager)</span> -&gt; Range&lt;CGFloat&gt;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">     func <span class="title">drawCandle</span><span class="params">(_ model: HTKLineModel, _ index: Int, _ maxValue: CGFloat, _ minValue: CGFloat, _ baseY: CGFloat, _ height: CGFloat, _ context: CGContext, _ configManager: HTKLineConfigManager)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">     func <span class="title">drawLine</span><span class="params">(_ model: HTKLineModel, _ lastModel: HTKLineModel, _ maxValue: CGFloat, _ minValue: CGFloat, _ baseY: CGFloat, _ height: CGFloat, _ index: Int, _ lastIndex: Int, _ context: CGContext, _ configManager : HTKLineConfigManager)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">     func <span class="title">drawText</span><span class="params">(_ model: HTKLineModel, _ baseX: CGFloat, _ baseY: CGFloat, _ context: CGContext, _ configManager: HTKLineConfigManager)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">     func <span class="title">drawValue</span><span class="params">(_ maxValue: CGFloat, _ minValue: CGFloat, _ baseX: CGFloat, _ baseY: CGFloat, _ height: CGFloat, _ context: CGContext, _ configManager: HTKLineConfigManager)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Chart-drawing"><a href="#Chart-drawing" class="headerlink" title="Chart drawing"></a>Chart drawing</h2><h3 id="Drawing-processing"><a href="#Drawing-processing" class="headerlink" title="Drawing processing"></a>Drawing processing</h3><p>We need a common point conversion method. We first draw the candles of the main chart and the sub-chart, and then draw the text, ruler, maximum and minimum, time scale, current price horizontal line, long-pressed detail panel, etc.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineView</span></span><br><span class="line"><span class="function">override func <span class="title">draw</span><span class="params">(_ rect: CGRect)</span> </span>&#123;</span><br><span class="line">     guard let context = UIGraphicsGetCurrentContext(), configManager.modelArray.count &gt; <span class="number">0</span> <span class="keyword">else</span> &#123;</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     calculateBaseHeight()</span><br><span class="line">     contextTranslate(context, CGFloat(visibleRange.lowerBound) * configManager.itemWidth, &#123; context in</span><br><span class="line">         drawCandle(context)</span><br><span class="line">     &#125;)</span><br><span class="line"></span><br><span class="line">     contextTranslate(context, contentOffset.x, &#123; context in</span><br><span class="line"></span><br><span class="line">         drawText(context)</span><br><span class="line">         drawValue(context)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">         drawHighLow(context)</span><br><span class="line">         drawTime(context)</span><br><span class="line">         drawClosePrice(context)</span><br><span class="line">         drawSelectedLine(context)</span><br><span class="line">         drawSelectedBoard(context)</span><br><span class="line">         drawSelectedTime(context)</span><br><span class="line">        </span><br><span class="line">         drawContext. draw(contentOffset. x)</span><br><span class="line">     &#125;)</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Scroll-Gesture-Handling"><a href="#Scroll-Gesture-Handling" class="headerlink" title="Scroll Gesture Handling"></a>Scroll Gesture Handling</h3><p>When the ScrollView scrolls horizontally, in order to save performance, we only draw in the visible range of the screen, and then calculate the accurate offset for drawing</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineView</span></span><br><span class="line"><span class="function">func <span class="title">scrollViewDidScroll</span><span class="params">(_ scrollView: UIScrollView)</span> </span>&#123;</span><br><span class="line">     let contentOffsetX = scrollView. contentOffset. x</span><br><span class="line">     <span class="keyword">var</span> visibleStartIndex = Int(floor(contentOffsetX / configManager. itemWidth))</span><br><span class="line">     <span class="keyword">var</span> visibleEndIndex = Int(ceil((contentOffsetX + scrollView. bounds. size. width) / configManager. itemWidth))</span><br><span class="line">     visibleStartIndex = min(max(<span class="number">0</span>, visibleStartIndex), configManager.modelArray.count - <span class="number">1</span>)</span><br><span class="line">     visibleEndIndex = min(max(<span class="number">0</span>, visibleEndIndex), configManager.modelArray.count - <span class="number">1</span>)</span><br><span class="line">     visibleRange = visibleStartIndex...visibleEndIndex</span><br><span class="line">     self. setNeedsDisplay()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Zoom-gesture-handling"><a href="#Zoom-gesture-handling" class="headerlink" title="Zoom gesture handling"></a>Zoom gesture handling</h3><p>When the ScrollView pinch zoom gesture, we need to recalculate the offset for drawing</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineView</span></span><br><span class="line"><span class="meta">@objc</span></span><br><span class="line"><span class="function">func <span class="title">pinchSelector</span><span class="params">(_ gesture: UIPinchGestureRecognizer)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">switch</span> gesture. state &#123;</span><br><span class="line">     <span class="keyword">case</span>.changed:</span><br><span class="line">         scale += (gesture. scale - <span class="number">1</span>) / <span class="number">10</span></span><br><span class="line">     <span class="keyword">default</span>:</span><br><span class="line">         <span class="keyword">break</span></span><br><span class="line">     &#125;</span><br><span class="line">     scale = max(<span class="number">0.3</span>, min(scale, <span class="number">3</span>))</span><br><span class="line"></span><br><span class="line">     let width = bounds. size. width</span><br><span class="line">     let halfWidth = width / <span class="number">2</span></span><br><span class="line">     let offsetScale = (contentOffset.x + halfWidth) / (contentSize.width - configManager.paddingRight)</span><br><span class="line"></span><br><span class="line">     reloadContentSize()</span><br><span class="line">     let contentOffsetX = max(<span class="number">0</span>, min((contentSize. width - configManager. paddingRight) * offsetScale - halfWidth, contentSize. width - width))</span><br><span class="line">     reloadContentOffset(contentOffsetX)</span><br><span class="line">     scrollViewDidScroll(self)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Long-press-gesture-panel-processing"><a href="#Long-press-gesture-panel-processing" class="headerlink" title="Long press gesture panel processing"></a>Long press gesture panel processing</h3><p>When ScrollView receives a long press or click gesture, we need to show or hide the details panel</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineView</span></span><br><span class="line"><span class="meta">@objc</span></span><br><span class="line"><span class="function">func <span class="title">longPressSelector</span><span class="params">(_ gesture: UILongPressGestureRecognizer)</span> </span>&#123;</span><br><span class="line">     let index = Int(floor(gesture. location(in: self). x / configManager. itemWidth))</span><br><span class="line">     selectedIndex = index</span><br><span class="line">     <span class="keyword">if</span> (selectedIndex &gt;= configManager. modelArray. count) &#123;</span><br><span class="line">         selectedIndex = configManager.modelArray.count - <span class="number">1</span></span><br><span class="line">     &#125;</span><br><span class="line">     self. setNeedsDisplay()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Chart-magnifying-glass"><a href="#Chart-magnifying-glass" class="headerlink" title="Chart magnifying glass"></a>Chart magnifying glass</h2><p>We integrate all the charts into the container HTKLineContainerView, where we handle the display of the magnifying glass according to gestures</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineContainerView</span></span><br><span class="line"><span class="function">func <span class="title">touchesGesture</span><span class="params">(_ touched: Set&lt;UITouch&gt;, _ state: UIGestureRecognizerState)</span> </span>&#123;</span><br><span class="line">     guard <span class="keyword">var</span> location = touched.first?.location(in: self) <span class="keyword">else</span> &#123;</span><br><span class="line">         shotView. shotPoint = nil</span><br><span class="line">         <span class="keyword">return</span></span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">var</span> previousLocation = touched.first?.previousLocation(in: self) ?? location</span><br><span class="line">     location = convertLocation(location)</span><br><span class="line">     previousLocation = convertLocation(previousLocation)</span><br><span class="line">    </span><br><span class="line">     let translation = CGPoint.init(x: location.x - previousLocation.x, y: location.y - previousLocation.y)</span><br><span class="line">    </span><br><span class="line">     klineView.drawContext.touchesGesture(location, translation, state)</span><br><span class="line">     shotView.shotPoint = state != .ended ? touched.first?.location(in: self) : nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Finger-marker-drawing"><a href="#Finger-marker-drawing" class="headerlink" title="Finger marker drawing"></a>Finger marker drawing</h2><p>Our finger mark drawings are all drawn through HTDrawContext, we need to pay attention to including parallelograms, we need to convert all coordinates to the current price coordinates, because our zoom gesture needs to keep these finger mark drawings in the correct position</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//HTKLineContainerView</span></span><br><span class="line"><span class="function">func <span class="title">reloadConfigManager</span><span class="params">(_ configManager: HTKLineConfigManager)</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">     configManager.onDrawItemDidTouch = &#123; [weak self] (drawItem, drawItemIndex) in</span><br><span class="line">         self?.configManager.shouldReloadDrawItemIndex = drawItemIndex</span><br><span class="line">         guard let drawItem = drawItem, let colorList = drawItem.drawColor.cgColor.components <span class="keyword">else</span> &#123;</span><br><span class="line">             self?.onDrawItemDidTouch?([</span><br><span class="line">                 <span class="string">&quot;shouldReloadDrawItemIndex&quot;</span>: drawItemIndex,</span><br><span class="line">             ])</span><br><span class="line">             <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         self?.onDrawItemDidTouch?([</span><br><span class="line">             <span class="string">&quot;shouldReloadDrawItemIndex&quot;</span>: drawItemIndex,</span><br><span class="line">             <span class="string">&quot;drawColor&quot;</span>: colorList,</span><br><span class="line">             <span class="string">&quot;drawLineHeight&quot;</span>: drawItem. drawLineHeight,</span><br><span class="line">             <span class="string">&quot;drawDashWidth&quot;</span>: drawItem. drawDashWidth,</span><br><span class="line">             <span class="string">&quot;drawDashSpace&quot;</span>: drawItem. drawDashSpace,</span><br><span class="line">             <span class="string">&quot;drawIsLock&quot;</span>: drawItem. drawIsLock</span><br><span class="line">         ])</span><br><span class="line">     &#125;</span><br><span class="line">     configManager.onDrawItemComplete = &#123; [weak self] (drawItem, drawItemIndex) in</span><br><span class="line">         self?.onDrawItemComplete?([AnyHashable: Any].init())</span><br><span class="line">     &#125;</span><br><span class="line">     configManager.onDrawPointComplete = &#123; [weak self] (drawItem, drawItemIndex) in</span><br><span class="line">         guard let drawItem = drawItem <span class="keyword">else</span> &#123;</span><br><span class="line">             <span class="keyword">return</span></span><br><span class="line">         &#125;</span><br><span class="line">         self?.onDrawPointComplete?([</span><br><span class="line">             <span class="string">&quot;pointCount&quot;</span>: drawItem.pointList.count</span><br><span class="line">         ])</span><br><span class="line">     &#125;</span><br><span class="line">    </span><br><span class="line">     let reloadIndex = configManager.shouldReloadDrawItemIndex</span><br><span class="line">     <span class="keyword">if</span> reloadIndex &gt;= <span class="number">0</span>, reloadIndex &lt; klineView.drawContext.drawItemList.count &#123;</span><br><span class="line">         let drawItem = klineView.drawContext.drawItemList[reloadIndex]</span><br><span class="line">         drawItem.drawColor = configManager.drawColor</span><br><span class="line">         drawItem.drawLineHeight = configManager.drawLineHeight</span><br><span class="line">         drawItem.drawDashWidth = configManager.drawDashWidth</span><br><span class="line">         drawItem.drawDashSpace = configManager.drawDashSpace</span><br><span class="line">         drawItem.drawIsLock = configManager.drawIsLock</span><br><span class="line">         <span class="keyword">if</span> (configManager. drawShouldTrash) &#123;</span><br><span class="line">             configManager.shouldReloadDrawItemIndex = HTDrawState.showPencil.rawValue</span><br><span class="line">             klineView.drawContext.drawItemList.remove(at: reloadIndex)</span><br><span class="line">             configManager.drawShouldTrash = <span class="keyword">false</span></span><br><span class="line">         &#125;</span><br><span class="line">         klineView.drawContext.setNeedsDisplay()</span><br><span class="line">     &#125;</span><br><span class="line">    </span><br><span class="line">     <span class="keyword">if</span> configManager. shouldFixDraw &#123;</span><br><span class="line">         configManager.shouldFixDraw = <span class="keyword">false</span></span><br><span class="line">         klineView.drawContext.fixDrawItemList()</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">if</span> (configManager. shouldClearDraw) &#123;</span><br><span class="line">         configManager.drawType = .none</span><br><span class="line">         configManager.shouldClearDraw = <span class="keyword">false</span></span><br><span class="line">         klineView.drawContext.clearDrawItemList()</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="Affiliated"><a href="#Affiliated" class="headerlink" title="Affiliated"></a>Affiliated</h2><p>The full code is here <a target="_blank" rel="noopener" href="https://github.com/hellohublot/react-native-kline-view">https://github.com/hellohublot/react-native-kline-view</a><br>I’m hublot, sharing some of my thoughts, I’m too busy with work, it’s inevitable that there will be negligence, please forgive me</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ReactNative/" rel="tag"># ReactNative</a>
+              <a href="/tags/Chart/" rel="tag"># Chart</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/04/23/How%20to%20use%20ReactNative%20to%20implement%20a%20high-performance%20navigation%20bar/" rel="prev" title="How to use ReactNative to implement a high-performance navigation bar">
+      <i class="fa fa-chevron-left"></i> How to use ReactNative to implement a high-performance navigation bar
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-transfer"><span class="nav-number">1.</span> <span class="nav-text">Data transfer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chart-wrapper"><span class="nav-number">2.</span> <span class="nav-text">Chart wrapper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chart-drawing"><span class="nav-number">3.</span> <span class="nav-text">Chart drawing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Drawing-processing"><span class="nav-number">3.1.</span> <span class="nav-text">Drawing processing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scroll-Gesture-Handling"><span class="nav-number">3.2.</span> <span class="nav-text">Scroll Gesture Handling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zoom-gesture-handling"><span class="nav-number">3.3.</span> <span class="nav-text">Zoom gesture handling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Long-press-gesture-panel-processing"><span class="nav-number">3.4.</span> <span class="nav-text">Long press gesture panel processing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chart-magnifying-glass"><span class="nav-number">4.</span> <span class="nav-text">Chart magnifying glass</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Finger-marker-drawing"><span class="nav-number">5.</span> <span class="nav-text">Finger marker drawing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Affiliated"><span class="nav-number">6.</span> <span class="nav-text">Affiliated</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hublot@aliyun.com"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">hublot@aliyun.com</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hellohublot" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hellohublot" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hublot@aliyun.com" title="E-Mail → mailto:hublot@aliyun.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hublot@aliyun.com</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

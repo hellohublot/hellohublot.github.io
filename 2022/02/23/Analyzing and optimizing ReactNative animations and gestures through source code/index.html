@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hellohublot.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Why is it stuck  Although the Main thread of most ReactNative applications does maintain 60FPS, why do we still feel stuck,In fact, this is because of the asynchronous communication between the JS thr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Analyzing and optimizing ReactNative animations and gestures through source code">
+<meta property="og:url" content="https://hellohublot.github.io/2022/02/23/Analyzing%20and%20optimizing%20ReactNative%20animations%20and%20gestures%20through%20source%20code/index.html">
+<meta property="og:site_name" content="时光荏苒">
+<meta property="og:description" content="Why is it stuck  Although the Main thread of most ReactNative applications does maintain 60FPS, why do we still feel stuck,In fact, this is because of the asynchronous communication between the JS thr">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://reactnative.dev/docs/assets/Architecture/threading-model/case-1.jpg">
+<meta property="article:published_time" content="2022-02-23T08:48:14.000Z">
+<meta property="article:modified_time" content="2023-02-24T06:59:03.948Z">
+<meta property="article:author" content="hublot@aliyun.com">
+<meta property="article:tag" content="ReactNative">
+<meta property="article:tag" content="Performance">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://reactnative.dev/docs/assets/Architecture/threading-model/case-1.jpg">
+
+<link rel="canonical" href="https://hellohublot.github.io/2022/02/23/Analyzing%20and%20optimizing%20ReactNative%20animations%20and%20gestures%20through%20source%20code/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Analyzing and optimizing ReactNative animations and gestures through source code | 时光荏苒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">时光荏苒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hellohublot.github.io/2022/02/23/Analyzing%20and%20optimizing%20ReactNative%20animations%20and%20gestures%20through%20source%20code/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hublot@aliyun.com">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="时光荏苒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Analyzing and optimizing ReactNative animations and gestures through source code
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-02-23 16:48:14" itemprop="dateCreated datePublished" datetime="2022-02-23T16:48:14+08:00">2022-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-02-24 14:59:03" itemprop="dateModified" datetime="2023-02-24T14:59:03+08:00">2023-02-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Why-is-it-stuck"><a href="#Why-is-it-stuck" class="headerlink" title="Why is it stuck"></a>Why is it stuck</h2><hr>
+<p><img src="https://reactnative.dev/docs/assets/Architecture/threading-model/case-1.jpg"></p>
+<p>Although the Main thread of most ReactNative applications does maintain 60FPS, why do we still feel stuck,<br>In fact, this is because of the asynchronous communication between the JS thread and the Main thread, resulting in the user’s gestures not being fed back in time, so our article mainly talks about the performance optimization of ReactNative applications</p>
+<hr>
+<h2 id="animation"><a href="#animation" class="headerlink" title="animation"></a>animation</h2><h3 id="JS-frame-animation"><a href="#JS-frame-animation" class="headerlink" title="JS frame animation"></a>JS frame animation</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/Libraries/Animated/animations/TimingAnimation.js#L126</span></span><br><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/Libraries/Core/Timers/JSTimers.js#L257</span></span><br><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/React/CoreModules/RCTTiming.mm#L334</span></span><br><span class="line"><span class="comment">// TimingAnimation</span></span><br><span class="line"><span class="comment">// Through the above call chain, you can see that the JS frame animation is triggered based on the timer loop</span></span><br><span class="line"><span class="built_in">this</span>._animationFrame = requestAnimationFrame(</span><br><span class="line">     <span class="built_in">this</span>.onUpdate.bind(<span class="built_in">this</span>),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/React/CoreModules/RCTTiming.mm#L296</span></span><br><span class="line"><span class="comment">// RCTTiming</span></span><br><span class="line"><span class="comment">// Start an NSTimer on the JS thread</span></span><br><span class="line">- (<span class="keyword">void</span>)scheduleSleepTimer:(NSDate *)sleepTarget</span><br><span class="line">&#123;</span><br><span class="line">     <span class="meta">@synchronized(self)</span> &#123;</span><br><span class="line">         <span class="keyword">if</span> (!_sleepTimer || !_sleepTimer.valid) &#123;</span><br><span class="line">             _sleepTimer = [[NSTimer alloc] initWithFireDate:sleepTarget</span><br><span class="line">                                                  interval: <span class="number">0</span></span><br><span class="line">                                                    target:[_RCTTimingProxy proxyWithTarget:self]</span><br><span class="line">                                                  selector: <span class="meta">@selector(timerDidFire)</span></span><br><span class="line">                                                  userInfo: nil</span><br><span class="line">                                                   repeats:NO];</span><br><span class="line">             [[NSRunLoop currentRunLoop] addTimer:_sleepTimer forMode:NSDefaultRunLoopMode];</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">             _sleepTimer.fireDate = [_sleepTimer.fireDate earlierDate:sleepTarget];</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>requestAnimationFrame is a timer function exposed by Native to JS. Every time the timer triggers a frame animation, the JS thread will recalculate the layout, and then switch to the Main thread to update these layouts. Ordinary JS animations are generally very stuck, because the frame timer is in the The thread may be very busy, the communication between threads may take time to wait, and the frame timer keeps making the main thread refresh the interface while the main thread may also be busy, so it is very common to encounter performance problems when using JS animation. What are the common solutions?</p>
+<h3 id="Native-frame-animation-useNativeDriver"><a href="#Native-frame-animation-useNativeDriver" class="headerlink" title="Native frame animation useNativeDriver"></a>Native frame animation useNativeDriver</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/Libraries/NativeAnimation/RCTNativeAnimatedNodesManager.m#L429</span></span><br><span class="line"><span class="comment">// RCTNativeAnimatedNodesManager</span></span><br><span class="line"><span class="comment">// Start a CADisplayLink on the main thread</span></span><br><span class="line">- (<span class="keyword">void</span>)startAnimationLoopIfNeeded &#123;</span><br><span class="line">     <span class="keyword">if</span> (!_displayLink &amp;&amp; _activeAnimations.count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">         _displayLink = [CADisplayLink displayLinkWithTarget:self selector:<span class="meta">@selector(stepAnimations:)</span>];</span><br><span class="line">         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/Libraries/NativeAnimation/Drivers/RCTFrameAnimation.m#L85</span></span><br><span class="line"><span class="comment">// RCTFrameAnimation</span></span><br><span class="line"><span class="comment">// The selector bound to CADisplayLink will calculate the value change, and then setNeedsDisplay directly on the main thread</span></span><br><span class="line">- (<span class="keyword">void</span>)stepAnimationWithTime:(NSTimeInterval)currentTime</span><br><span class="line">&#123;</span><br><span class="line">     ...</span><br><span class="line">     [self updateOutputWithFrameOutput:frameOutput];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)updateOutputWithFrameOutput:(CGFloat)frameOutput</span><br><span class="line">&#123;</span><br><span class="line">     ...</span><br><span class="line">     [_valueNode setNeedsUpdate];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>useNativeDriver, what is the actual function of this attribute? Check the source code of ReactNative or react-native-reanimated, we can see that a variable value is bound to the main thread, and a CADisplayLink is opened. This frame timer is one Change the bound variable value frame by frame, and then refresh the corresponding interface after the value value is changed in the main thread, which will not involve JS thread communication, so most of the cases can help solve our performance problems, but there are Sometimes we will encounter animation performance problems that cannot be solved by useNativeDriver, that is, the frame loss of CADisplayLink frame animation, how do we deal with this situation?</p>
+<h3 id="Native-layout-animation-LayoutAnimation"><a href="#Native-layout-animation-LayoutAnimation" class="headerlink" title="Native layout animation LayoutAnimation"></a>Native layout animation LayoutAnimation</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/React/Modules/RCTLayoutAnimation.m#L107-L127</span></span><br><span class="line"><span class="comment">// RCTLayoutAnimation</span></span><br><span class="line"><span class="comment">// LayoutAnimation will perform UIView animation through UIManager</span></span><br><span class="line">- (<span class="keyword">void</span>)performAnimations:(<span class="keyword">void</span> (^)(<span class="keyword">void</span>))animations withCompletionBlock:(<span class="keyword">void</span> (^)(BOOL completed))completionBlock</span><br><span class="line">&#123;</span><br><span class="line">     <span class="keyword">if</span> (_animationType == RCTAnimationTypeSpring) &#123;</span><br><span class="line">         [UIView animateWithDuration:_duration</span><br><span class="line">                               delay:_delay</span><br><span class="line">              usingSpringWithDamping:_springDamping</span><br><span class="line">               initialSpringVelocity:_initialVelocity</span><br><span class="line">                             options:UIViewAnimationOptionBeginFromCurrentState</span><br><span class="line">                          animations: animations</span><br><span class="line">                          completion:completionBlock];</span><br><span class="line">     &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">         UIViewAnimationOptions options =</span><br><span class="line">             UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionsFromRCTAnimationType(_animationType);</span><br><span class="line"></span><br><span class="line">         [UIView animateWithDuration:_duration</span><br><span class="line">                               delay:_delay</span><br><span class="line">                             options:options</span><br><span class="line">                          animations: animations</span><br><span class="line">                          completion:completionBlock];</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>LayoutAnimation can solve this problem instead, and this is why, we can find out by looking at the source code, because LayoutAnimation does not start the Native frame animation, but the native UIView animation that comes with iOS, because the animation of iOS is a separate process for animation. This animation is a process animation and has nothing to do with threads, so even if the Main thread is too busy, the animation process will directly complete the animation. Similarly, the animation framework of android may also have its own optimization, such as hardware acceleration, etc.</p>
+<h2 id="Gesture-events"><a href="#Gesture-events" class="headerlink" title="Gesture events"></a>Gesture events</h2><h3 id="JS-Gesture-Events"><a href="#JS-Gesture-Events" class="headerlink" title="JS Gesture Events"></a>JS Gesture Events</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/React/Base/RCTTouchHandler.m#L186</span></span><br><span class="line"><span class="comment">// RCTTouchHandler</span></span><br><span class="line"><span class="comment">// Every touch event on RootContentView will be sent to JS</span></span><br><span class="line">- (<span class="keyword">void</span>)_updateAndDispatchTouches:(NSSet&lt;UITouch *&gt; *)touches eventName:(NSString *)eventName &#123;</span><br><span class="line">     ...</span><br><span class="line">     RCTTouchEvent *event = [[RCTTouchEvent alloc] initWithEventName:eventName</span><br><span class="line">                                                          reactTag: self.view.reactTag</span><br><span class="line">                                                      reactTouches: reactTouches</span><br><span class="line">                                                    changedIndexes: changedIndexes</span><br><span class="line">                                                     coalescingKey:_coalescingKey];</span><br><span class="line"></span><br><span class="line">     <span class="keyword">if</span> (!canBeCoalesced) &#123;</span><br><span class="line">         _coalescingKey++;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     [_eventDispatcher sendEvent:event];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Ordinary JS gesture processing is generally very slow, because the main thread receives the gesture, sends the gesture to the JS thread, and then executes the JS logic. The Main thread receives the interface properties that should be updated, which involves two cross-threads Transferring data, among them, it is absolutely possible to wait for communication. How do we usually solve it?</p>
+<h3 id="Native-Gesture-Events"><a href="#Native-Gesture-Events" class="headerlink" title="Native Gesture Events"></a>Native Gesture Events</h3><p>Similarly, the useNativeDriver mentioned above, we also have an event called nativeEvent, usually, the two are used together, the native gesture will send a global notification, the animation framework will listen to this event, and then directly update the value of the animation binding As well as refreshing the interface directly on the main thread, we also don’t need asynchronous JS thread communication, so react-native-gesture-handler really solves a lot of performance problems</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://github.com/facebook/react-native/blob/26b2bb5343f92672ed4e8f42c6f839e903124b06/Libraries/NativeAnimation/RCTNativeAnimatedModule.mm#L76</span></span><br><span class="line"><span class="comment">// RCTNativeAnimatedModule</span></span><br><span class="line"><span class="comment">// The animation framework will listen to all Event events, and then judge whether to update the bound animation value value according to the key</span></span><br><span class="line">- (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">     [[self.moduleRegistry moduleForName:<span class="string">&quot;EventDispatcher&quot;</span>] addDispatchObserver:self];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Affiliated"><a href="#Affiliated" class="headerlink" title="Affiliated"></a>Affiliated</h2><p>I’m hublot, sharing some of my thoughts, I’m too busy with work, it’s inevitable that there will be negligence, please forgive me</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ReactNative/" rel="tag"># ReactNative</a>
+              <a href="/tags/Performance/" rel="tag"># Performance</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/03/23/How%20to%20customize%20the%20navigation%20structure%20to%20greatly%20improve%20the%20performance%20of%20your%20ReactNative%20application/" rel="next" title="How to customize the navigation structure to greatly improve the performance of your ReactNative application">
+      How to customize the navigation structure to greatly improve the performance of your ReactNative application <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-is-it-stuck"><span class="nav-number">1.</span> <span class="nav-text">Why is it stuck</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#animation"><span class="nav-number">2.</span> <span class="nav-text">animation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JS-frame-animation"><span class="nav-number">2.1.</span> <span class="nav-text">JS frame animation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Native-frame-animation-useNativeDriver"><span class="nav-number">2.2.</span> <span class="nav-text">Native frame animation useNativeDriver</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Native-layout-animation-LayoutAnimation"><span class="nav-number">2.3.</span> <span class="nav-text">Native layout animation LayoutAnimation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gesture-events"><span class="nav-number">3.</span> <span class="nav-text">Gesture events</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JS-Gesture-Events"><span class="nav-number">3.1.</span> <span class="nav-text">JS Gesture Events</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Native-Gesture-Events"><span class="nav-number">3.2.</span> <span class="nav-text">Native Gesture Events</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Affiliated"><span class="nav-number">4.</span> <span class="nav-text">Affiliated</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hublot@aliyun.com"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">hublot@aliyun.com</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hellohublot" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hellohublot" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hublot@aliyun.com" title="E-Mail → mailto:hublot@aliyun.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hublot@aliyun.com</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
